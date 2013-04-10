@@ -151,6 +151,9 @@ class DVDShare:
 	def getVideoDir(self):
 		return self.videoDir
 	
+	def getRoot(self):
+		return self.root
+	
 	def VideoCount(self):
 		return self.count
 

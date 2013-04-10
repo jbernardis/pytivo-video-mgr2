@@ -9,21 +9,38 @@ from Config import ConfigError
 from InfoView import metaTranslate
 from VideoFile import stripArticle
 
+import os
+import unicodedata
+import string
+
 AlphaKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+validFilenameChars = "-_%s%s" % (string.ascii_letters, string.digits)
+transtable = string.maketrans(" ", "-")
+
+def Legalize(s):
+	cs = unicodedata.normalize('NFKD', unicode(s)).encode('ASCII', 'ignore').translate(transtable)
+	return ''.join(c for c in cs if c in validFilenameChars)
 
 class Harvester:
 	def __init__(self, name, opts):
 		self.name = name
+		self.hpath = Legalize(name)
 		self.opts = opts.copy()
 		groupTag = self.opts['group']
 		if groupTag == None:
-			self.root = Node(name, opts)
+			self.root = Node(name, opts, path=self.hpath)
 		else:
-			self.root = Node(name, opts, title = "%s (grouped by %s)" % (name, metaTranslate(groupTag)))
+			self.root = Node(name, opts, path=self.hpath, title = "%s (grouped by %s)" % (name, metaTranslate(groupTag)))
 			
 		self.nodeMap = {}
+		self.pathMap = {}
+		self.pathMap[name] = self.hpath
 		self.count = 0
 		self.gcount = 0
+		
+	def getPathMap(self):
+		return self.pathMap
 		
 	def formatDisplayText(self, fmt):
 		n = self.name
@@ -91,7 +108,9 @@ class AllHarvester(Harvester):
 				target = self.nodeMap[grp]
 			else:
 				# Otherwise create a new node and link it in
-				target = Node(grp, self.opts, title = "%s: %s" %(metaTranslate(groupTag), grp))
+				path=os.path.join(self.hpath, Legalize(grp))
+				target = Node(grp, self.opts, path=path, title = "%s: %s" %(metaTranslate(groupTag), grp))
+				self.pathMap[os.path.join(self.name, grp)] = path
 				self.nodeMap[grp] = target
 				self.root.addDir(target)
 				self.gcount += 1
@@ -133,7 +152,9 @@ class AlphaHarvester(Harvester):
 			if keychar not in self.nodeMap:
 				# we've not seen this value yet - create a Node
 				# and link it in
-				target = Node(keychar + "... ", self.opts)
+				path=os.path.join(self.hpath, Legalize(keychar))
+				target = Node(keychar + "... ", self.opts, path=path)
+				self.pathMap[os.path.join(self.name, keychar)] = path
 				self.nodeMap[keychar] = target
 				self.root.addDir(target)
 			else:
@@ -151,7 +172,9 @@ class AlphaHarvester(Harvester):
 	
 			grpTitle = "%s: %s" % (metaTranslate(groupTag), grp)
 			if grp not in self.nodeMap:
-				grpNode = Node(grp, self.opts, title = grpTitle)
+				path=os.path.join(self.hpath, Legalize(grp))
+				grpNode = Node(grp, self.opts, title = grpTitle, path=path)
+				self.pathMap[os.path.join(self.name, grp)] = path
 				self.nodeMap[grp] = grpNode
 				self.root.addDir(grpNode)
 				self.gcount += 1
@@ -160,7 +183,9 @@ class AlphaHarvester(Harvester):
 					
 			mvkey = grpTitle + "/" + keychar
 			if mvkey not in self.nodeMap:
-				target = Node(keychar + "... ", self.opts, title = mvkey + "...")
+				path=os.path.join(self.hpath, Legalize(grp), Legalize(keychar))
+				target = Node(keychar + "... ", self.opts, title = mvkey + "...", path=path)
+				self.pathMap[os.path.join(self.name, grp, keychar)] = path
 				self.nodeMap[mvkey] = target
 				grpNode.addDir(target)
 			else:
@@ -232,7 +257,9 @@ class KeyValHarvester(Harvester):
 				target = self.nodeMap[grp]
 			else:
 				# Otherwise create a new node and link it in
-				target = Node(grp, self.opts, title = "%s: %s" %(metaTranslate(groupTag), grp))
+				path=os.path.join(self.hpath, Legalize(grp))
+				target = Node(grp, self.opts, title = "%s: %s" %(metaTranslate(groupTag), grp), path=path)
+				self.pathMap[os.path.join(self.name, grp)] = path
 				self.nodeMap[grp] = target
 				self.root.addDir(target)
 				self.gcount += 1
@@ -283,7 +310,9 @@ class KeySetHarvester(Harvester):
 				if mv not in self.nodeMap:
 					# we've not seen this value yet - create a Node
 					# and link it in
-					target = Node(mv, self.opts)
+					path=os.path.join(self.hpath, Legalize(mv))
+					target = Node(mv, self.opts, path=path)
+					self.pathMap[os.path.join(self.name, mv)] = path
 					self.nodeMap[mv] = target
 					self.root.addDir(target)
 				else:
@@ -301,7 +330,9 @@ class KeySetHarvester(Harvester):
 
 				grpTitle = "%s: %s" % (metaTranslate(groupTag), grp)
 				if grp not in self.nodeMap:
-					grpNode = Node(grp, self.opts, title = grpTitle)
+					path=os.path.join(self.hpath, Legalize(grp))
+					grpNode = Node(grp, self.opts, title = grpTitle, path=path)
+					self.pathMap[os.path.join(self.name, grp)] = path
 					self.nodeMap[grp] = grpNode
 					self.root.addDir(grpNode)
 					self.gcount += 1
@@ -310,7 +341,9 @@ class KeySetHarvester(Harvester):
 					
 				mvkey = grpTitle + "/" + mv
 				if mvkey not in self.nodeMap:
-					target = Node(mv, self.opts, title = mvkey)
+					path=os.path.join(self.hpath, Legalize(grp), Legalize(mv))
+					target = Node(mv, self.opts, title = mvkey, path=path)
+					self.pathMap[os.path.join(self.name, grp, mv)] = path
 					self.nodeMap[mvkey] = target
 					grpNode.addDir(target)
 				else:

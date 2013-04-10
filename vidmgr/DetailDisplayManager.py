@@ -6,8 +6,10 @@ import os
 
 from Config import ( detailViewXPos, detailViewWidth, detailDescHeight,
 					detailDescWidth, detailDescXPos, detailDescYPos,
-					thumbnailwidth, thumbnailheight, thumbnailxpos, thumbnailypos,
-					TYPE_VIDFILE, TYPE_DVDDIR, TYPE_VIDDIR )
+					thumbnailwidth, thumbnailheight, thumbnailxpos, thumbnailypos, artworkDir,
+					TYPE_VIDFILE, TYPE_DVDDIR, TYPE_VIDDIR, TYPE_NODE, TYPE_VIDSHARE, TYPE_DVDSHARE )
+
+AppPath = os.path.dirname(__file__)
 
 class DetailDisplayManager:
 	def __init__(self, app, opts, tc):
@@ -69,6 +71,36 @@ class DetailDisplayManager:
 				self.vwDetailThumb.set_resource(thumb, flags=RSRC_VALIGN_TOP+self.opts['thumbjustify'])
 			else:
 				self.vwDetailThumb.clear_resource()
+		elif otype in [TYPE_NODE]:
+			mapkey = os.path.join(AppPath, artworkDir, item.getPath()+".jpg")
+			print "Trying to find NODE image file (%s)" % mapkey
+			if mapkey in self.imagemap:
+				thumb = self.imagemap[mapkey]
+			else:
+				thumb = self.getShareThumb(mapkey)
+				if thumb:
+					self.imagemap[mapkey] = thumb
+					
+			if thumb:
+				self.vwDetailThumb.set_resource(thumb, flags=RSRC_VALIGN_TOP+self.opts['thumbjustify'])
+			else:
+				self.vwDetailThumb.clear_resource()
+		
+		elif otype in [TYPE_VIDSHARE, TYPE_DVDSHARE]:
+			mapkey = os.path.join(item.getRoot(), "share.jpg")
+			print "Trying to find SHARE image file (%s)" % mapkey
+			if mapkey in self.imagemap:
+				thumb = self.imagemap[mapkey]
+			else:
+				thumb = self.getShareThumb(mapkey)
+				if thumb:
+					self.imagemap[mapkey] = thumb
+					
+			if thumb:
+				self.vwDetailThumb.set_resource(thumb, flags=RSRC_VALIGN_TOP+self.opts['thumbjustify'])
+			else:
+				self.vwDetailThumb.clear_resource()
+		
 		else:
 			self.vwDetailThumb.clear_resource()
 
@@ -105,5 +137,14 @@ class DetailDisplayManager:
 			if data:
 				thumb = Image(self.app, tfn, data=data)
 				break
+			
+		return thumb
+	
+	def getShareThumb(self, fn):
+		thumb = None
+			
+		data = self.tc.getImageData(fn)
+		if data:
+			thumb = Image(self.app, fn, data=data)
 			
 		return thumb

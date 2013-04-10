@@ -4,6 +4,8 @@ import urllib
 from string import maketrans
 from Config import MYKEY_PUSHRESUME, MYKEY_PUSHCOMPLETE, ConfigError
 from MessageBox import MessageBox
+import metadata
+from time import strftime, gmtime
 
 if os.path.sep == '/':
 	quote = urllib.quote
@@ -79,6 +81,16 @@ class Push:
 						[[[], MYKEY_PUSHCOMPLETE]])
 			else:
 				if html.lower().count('queue') != 0:
+					if self.opts['savepushdate']:
+						self.vf.setMetaItem("pushDate", strftime("%Y-%m-%dT%H:%M:%SZ", gmtime()))
+						meta = self.vf.getMeta()
+						try:
+							fn = self.vf.getMetaFileName()
+							metafile = open(fn, 'w')
+							metadata.dump(metafile, meta)
+							metafile.close()
+						except:
+							pass
 					MessageBox(self.app, "Successfully Queued",
 							"File has been successfully queued for push to " + tivoname,
 							'alert',

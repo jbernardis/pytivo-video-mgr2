@@ -55,6 +55,8 @@ TYPE_VIDSHARE = 3
 TYPE_DVDSHARE = 4
 TYPE_NODE = 5
 
+artworkDir = "artwork"
+
 class ConfigError(Exception):
 	pass
 
@@ -92,7 +94,8 @@ class Config:
 				'tagssortup' : True,
 				'ignorearticle' : True,
 				'group' : None,
-				'usefileid' : True
+				'usefileid' : True,
+				'savepushdate' : False
 				}
 	
 		if self.cfg.has_section('vidmgr'):
@@ -121,6 +124,10 @@ class Config:
 				elif opt == 'metamergelines':
 					if lval == "true":
 						opts['metamergelines'] = True
+				
+				elif opt == 'savepushdate':
+					if lval == "true":
+						opts['savepushdate'] = True
 				
 				elif opt == 'infolabelpercent':
 					n = int(value)

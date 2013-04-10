@@ -128,3 +128,17 @@ def basic(full_path):
 				'originalAirDate': originalAirDate.isoformat()}
 
 	return metadata
+
+def dump(output, metadata):
+	for key in metadata:
+		if key.startswith("__"): continue
+		value = metadata[key]
+		if type(value) == list:
+			for item in value:
+				output.write('%s : %s\n' % (key, item.encode('utf-8')))
+		else:
+			if key in HUMAN and value in HUMAN[key]:
+				output.write('%s : %s\n' % (key, HUMAN[key][value]))
+			else:
+				output.write('%s : %s\n' % (key, value.encode('utf-8')))
+

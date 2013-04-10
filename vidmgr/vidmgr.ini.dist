@@ -174,7 +174,13 @@ sortroot=false
 # setting the following option to false.  The default is true
 #
 
-usefileid=True
+usefileid=true
+
+#
+# the following option, when set to true, causes the time of a push operation to be saved in the meta file.  Default is false
+#
+
+savepushdate=false
 
 
 #

@@ -123,6 +123,16 @@ used for the enclosing folder or share.  Also, if there is a folder.txt file in 
 subtending .meta directory, its contents - notably the description field will be shown on the display
 above the thumbnail.
 
+Vidmgr ALSO will show artwork for physical shares, virtual shares and virtual directories created within virtual shares.
+For physical shares, place a file named "share.jpg" in the root directory of the share.  For virtual shares and for
+the virtual directories within them, jpg files are placed under the vidmgr directory in a subdirectory names "artwork".  The
+actual file names are based on the Share name and/or the metadata values that are used to group them.  Because metadata
+can basically contain anything, including characters that are not permissible in file names, there is some processing that
+goes on to make sure the file names are valid.  It's pretty straight-forward, but to find out EXACTLY what filename vidmgr
+is looking for, run BuildCache.py with the verbose option ("python BuildCache.py -v") and it will show you, for EVERY virtual
+share and metadata value it finds what filename it is looking for.  After you learn the algorithm, you shouldn't need to do this
+anymore, but it's there just in case.
+
 For dvdvideo shares, vidmgr is totally dependent on accurate metadata.  Metadata (and thumbnails) all belong
 in the directory containing the VIDEO_TS directory or in a subtending .meta directory.  Metadata is processed
 as follows.  default.txt contains the DVD metadata.  __Txx.mpg.txt contains the metadata for title xx.  The

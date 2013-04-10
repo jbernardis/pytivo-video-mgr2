@@ -24,12 +24,17 @@ def cmpList(a, b):
 OTHER = "<other>"
 
 class Node:
-	def __init__(self, name, opts, title = None, videoList = None, dirList=None):
+	def __init__(self, name, opts, path=None, title = None, videoList = None, dirList=None):
 		self.name = name
 		if title == None:
 			self.title = name
 		else:
 			self.title = title
+			
+		if path == None:
+			self.path = name
+		else:
+			self.path = path
 			
 		self.opts = opts
 		if videoList == None:
@@ -62,6 +67,9 @@ class Node:
 	
 	def getName(self):
 		return self.name
+	
+	def getPath(self):
+		return self.path
 	
 	def getShare(self):
 		return None

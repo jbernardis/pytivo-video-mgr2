@@ -16,7 +16,7 @@ from DVDDir import DVDDir
 import ConfigParser
 import cPickle as pickle
 from Node import Node
-from Config import ConfigError, SHARETYPE_VIDEO, SHARETYPE_DVD, TYPE_VIDDIR, TYPE_DVDDIR, TYPE_VIDSHARE, TYPE_DVDSHARE, TYPE_NODE
+from Config import ConfigError, artworkDir, SHARETYPE_VIDEO, SHARETYPE_DVD, TYPE_VIDDIR, TYPE_DVDDIR, TYPE_VIDSHARE, TYPE_DVDSHARE, TYPE_NODE
 
 CACHEFILE = "video.cache"
 OPTSECT = 'vidmgr'
@@ -340,6 +340,10 @@ class VideoCache:
 			else:
 				print "%s count: %d videos in %d groups" % (title, vc, gc)
 			root.addDir(nd)
+			if verbose:
+				pm = h.getPathMap()
+				for k in sorted(pm.keys()):
+					print "%s: %s%s%s.jpg" % (k, artworkDir, os.sep, pm[k])
 
 		if sortroot: root.sort()
 		

@@ -103,6 +103,23 @@ class VideoFile:
 	def getFullPath(self):
 		return os.path.join(self.getPath(), self.getFileName())
 	
+	def getMetaFileName(self):
+		path = self.getPath();
+		filename = self.getFileName()
+		
+		fn1 = os.path.join(path, '.meta', filename) + '.txt'
+		if os.path.exists(fn1):
+			return fn1
+		
+		fn2 = os.path.join(path, filename) + '.txt'
+		if os.path.exists(fn2):
+			return fn2
+
+		if os.path.exists(os.path.join(path, '.meta')):
+			return fn2
+		else:
+			return fn1		
+	
 	def getRelativePath(self):
 		if len(self.vRef) == 0:
 			return None
@@ -132,6 +149,9 @@ class VideoFile:
 		self.meta['__fileName'] = self.getFileName()
 		self.meta['__filePath'] = self.getPath()
 		self.formatDisplayText(self.opts['dispopt'])
+		
+	def setMetaItem(self, key, value):
+		self.meta[key] = value
 		
 	def formatDisplayText(self, fmt):
 		result = ""
@@ -178,6 +198,9 @@ class VideoFile:
 				terms += 1
 			elif f == 'file':
 				result = result + self.getFileName()
+				terms += 1
+			elif f == 'pushDate':
+				result += "1970-01-01T00:00:00Z"
 				terms += 1
 			
 		if terms == 0:

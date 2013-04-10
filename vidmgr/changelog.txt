@@ -53,3 +53,9 @@ Version 2.1b - 4/23/2012
 
 6/24/2012 - without renumbering release - I added the -v option to BuildCache.py to receive additional information about the cache
 build process to help debug metadata issues - as requested by lrhorer.
+
+Version 2.1c - 8/24/2012
+- added a feature that records the pushdate into the meta data and optionally writes it out to the meta file
+
+Version 2.2 - 12/3/2012
+- added the ability to have artwork/thumbnail images for virtual shares (and physical shares) and for the subtending directories
