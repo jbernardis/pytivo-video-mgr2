@@ -160,38 +160,44 @@ class AlphaHarvester(Harvester):
 			else:
 				# otherwise we've seen it so just use it
 				target = self.nodeMap[keychar]
+				
+			target.addVideo(vf)
 					
 		else:
 			# otherwise we are grouping
 			if groupTag not in mvf:
-				grp = OTHER
+				grplist = [OTHER]
 			else:
 				grp = mvf[groupTag]
 				if type(grp) is list:
-					raise ConfigError ("Configuration Error - grouping item must not be a list")
-	
-			grpTitle = "%s: %s" % (metaTranslate(groupTag), grp)
-			if grp not in self.nodeMap:
-				path=os.path.join(self.hpath, Legalize(grp))
-				grpNode = Node(grp, self.opts, title = grpTitle, path=path)
-				self.pathMap[os.path.join(self.name, grp)] = path
-				self.nodeMap[grp] = grpNode
-				self.root.addDir(grpNode)
-				self.gcount += 1
-			else:
-				grpNode = self.nodeMap[grp]
+					grplist = grp
+				else:
+					grplist = [grp]
+
+			for grp in grplist:
+				grpTitle = "%s: %s" % (metaTranslate(groupTag), grp)
+				if grp not in self.nodeMap:
+					path=os.path.join(self.hpath, Legalize(grp))
+					grpNode = Node(grp, self.opts, title = grpTitle, path=path)
+					self.pathMap[os.path.join(self.name, grp)] = path
+					self.nodeMap[grp] = grpNode
+					self.root.addDir(grpNode)
+					self.gcount += 1
+				else:
+					grpNode = self.nodeMap[grp]
+						
+				mvkey = grpTitle + "/" + keychar
+				if mvkey not in self.nodeMap:
+					path=os.path.join(self.hpath, Legalize(grp), Legalize(keychar))
+					target = Node(keychar + "... ", self.opts, title = mvkey + "...", path=path)
+					self.pathMap[os.path.join(self.name, grp, keychar)] = path
+					self.nodeMap[mvkey] = target
+					grpNode.addDir(target)
+				else:
+					target = self.nodeMap[mvkey]
 					
-			mvkey = grpTitle + "/" + keychar
-			if mvkey not in self.nodeMap:
-				path=os.path.join(self.hpath, Legalize(grp), Legalize(keychar))
-				target = Node(keychar + "... ", self.opts, title = mvkey + "...", path=path)
-				self.pathMap[os.path.join(self.name, grp, keychar)] = path
-				self.nodeMap[mvkey] = target
-				grpNode.addDir(target)
-			else:
-				target = self.nodeMap[mvkey]
+				target.addVideo(vf)
 				
-		target.addVideo(vf)
 		self.count += 1
 		
 class KeyValHarvester(Harvester):
@@ -213,7 +219,7 @@ class KeyValHarvester(Harvester):
 			if not k in mvf:
 				return
 
-			# otherwise - get the list og values for that
+			# otherwise - get the list of values for that
 			# metadata item from our map			
 			l = self.metakeydict[k]
 			if type(mvf[k]) is list:
@@ -242,29 +248,40 @@ class KeyValHarvester(Harvester):
 		if groupTag == None:
 			# no grouping - stuff into root node
 			target = self.root
+			target.addVideo(vf)
 		else:
 			# get the grouping value
-			if groupTag not in mvf:
-				grp = OTHER
+			if groupTag == 'alpha':
+				letter = mv.strip()[0].upper()
+				if letter not in AlphaKeys:
+					grplist = [OTHER]
+				else:
+					grplist = [letter + "..."]
+
+			elif groupTag not in mvf:
+				grplist = [OTHER]
 			else:
 				grp = mvf[groupTag]
 				if type(grp) is list:
-					raise ConfigError("Configuration Error - grouping item must not be a list")
+					grplist = grp
+				else:
+					grplist = [mvf[groupTag]]
 
-			if grp in self.nodeMap:
-				# if we've seen this group, then just reuse the 
-				# same node
-				target = self.nodeMap[grp]
-			else:
-				# Otherwise create a new node and link it in
-				path=os.path.join(self.hpath, Legalize(grp))
-				target = Node(grp, self.opts, title = "%s: %s" %(metaTranslate(groupTag), grp), path=path)
-				self.pathMap[os.path.join(self.name, grp)] = path
-				self.nodeMap[grp] = target
-				self.root.addDir(target)
-				self.gcount += 1
-		
-		target.addVideo(vf)
+			for grp in grplist:
+				if grp in self.nodeMap:
+					# if we've seen this group, then just reuse the 
+					# same node
+					target = self.nodeMap[grp]
+				else:
+					# Otherwise create a new node and link it in
+					path=os.path.join(self.hpath, Legalize(grp))
+					target = Node(grp, self.opts, title = "%s: %s" %(metaTranslate(groupTag), grp), path=path)
+					self.pathMap[os.path.join(self.name, grp)] = path
+					self.nodeMap[grp] = target
+					self.root.addDir(target)
+					self.gcount += 1
+			
+				target.addVideo(vf)
 		self.count += 1
 		
 class KeySetHarvester(Harvester):
@@ -302,7 +319,6 @@ class KeySetHarvester(Harvester):
 			print "%s does not have any of meta tag(s) %s" % (vf.getFullPath(), str(self.metakeys))
 					
 		# now go through the worklist and build the structure as we go
-		tally = False
 		for mv in addlist:
 			if groupTag == None:
 				# no grouping for this share OR video does not have
@@ -319,39 +335,49 @@ class KeySetHarvester(Harvester):
 					# otherwise we've seen it so just use it
 					target = self.nodeMap[mv]
 					
+				target.addVideo(vf)
+					
 			else:
 				# otherwise we are grouping
-				if groupTag not in mvf:
-					grp = OTHER
+				if groupTag == 'alpha':
+					letter = mv.strip()[0].upper()
+					if letter not in AlphaKeys:
+						grplist = [OTHER]
+					else:
+						grplist = [letter + "..."]
+
+				elif groupTag not in mvf:
+					grplist = [OTHER]
 				else:
 					grp = mvf[groupTag]
 					if type(grp) is list:
-						raise ConfigError ("Configuration Error - grouping item must not be a list")
+						grplist = grp
+					else:
+						grplist = [mvf[groupTag]]
 
-				grpTitle = "%s: %s" % (metaTranslate(groupTag), grp)
-				if grp not in self.nodeMap:
-					path=os.path.join(self.hpath, Legalize(grp))
-					grpNode = Node(grp, self.opts, title = grpTitle, path=path)
-					self.pathMap[os.path.join(self.name, grp)] = path
-					self.nodeMap[grp] = grpNode
-					self.root.addDir(grpNode)
-					self.gcount += 1
-				else:
-					grpNode = self.nodeMap[grp]
+				for grp in grplist:
+					grpTitle = "%s: %s" % (metaTranslate(groupTag), grp)
+					if grp not in self.nodeMap:
+						path=os.path.join(self.hpath, Legalize(grp))
+						grpNode = Node(grp, self.opts, title = grpTitle, path=path)
+						self.pathMap[os.path.join(self.name, grp)] = path
+						self.nodeMap[grp] = grpNode
+						self.root.addDir(grpNode)
+						self.gcount += 1
+					else:
+						grpNode = self.nodeMap[grp]
+						
+					mvkey = grpTitle + "/" + mv
+					if mvkey not in self.nodeMap:
+						path=os.path.join(self.hpath, Legalize(grp), Legalize(mv))
+						target = Node(mv, self.opts, title = mvkey, path=path)
+						self.pathMap[os.path.join(self.name, grp, mv)] = path
+						self.nodeMap[mvkey] = target
+						grpNode.addDir(target)
+					else:
+						target = self.nodeMap[mvkey]
+						
+					target.addVideo(vf)
 					
-				mvkey = grpTitle + "/" + mv
-				if mvkey not in self.nodeMap:
-					path=os.path.join(self.hpath, Legalize(grp), Legalize(mv))
-					target = Node(mv, self.opts, title = mvkey, path=path)
-					self.pathMap[os.path.join(self.name, grp, mv)] = path
-					self.nodeMap[mvkey] = target
-					grpNode.addDir(target)
-				else:
-					target = self.nodeMap[mvkey]
-					
-			target.addVideo(vf)
-			tally = True
-			
-		if tally:
-			self.count += 1
+		self.count += 1
 

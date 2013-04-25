@@ -3,6 +3,11 @@
 # this is the global options file - it belongs in the vidmgr directory under pyhme
 #
 # Default values are specified below.  
+#
+# NOTE:
+#
+# several of these parameters can be overridden within a specific directory tree by placing a .vidmgr.ini file into
+# the root of that subtree.  See .vidmgr.ini.dist for a description of the settings that can be so changed.
 
 #
 # NOTE:
@@ -182,6 +187,13 @@ usefileid=true
 
 savepushdate=false
 
+#
+# the following option, when set to false, causes the list of tivos in the push menu to be in the numeric order that
+# they are listed in the ini file.  True (the default) sorts them alphabetically by their name
+#
+
+sorttivosbyname=true
+
 
 #
 # the tivos section of the file is where you identify your Tivos.  For each tivo, you MUST provide a name and
@@ -281,6 +293,14 @@ savepushdate=false
 # "folder".  As a good example, let's extend the isEpisodic example from above.  If you say "values=isEpisodic:true,TRUE,True"
 # all videos will show up in a single flat "folder".  They will be sorted, but it could be a large list.  If I
 # add "groupby=seriesTitle", then vidmgr will create "sub-folders" for each series title thus organizing the files.
+#
+# it is possible, though not always practical, to use a list item (such as vActor) as the grouping item.  The video will appear in
+# multiple folders, one for each entry in the list.
+#
+# it is also possible to use a special value "groupby=alpha" to group into the first character of the title item.  This allows you
+# to, for example, break a potentially large list, like vActor, into separate alphabetical folders.  Only the first character is 
+# considered, and a folder will be created alphanumeric characters only.  Lower case letters will be put into the corresponding
+# upper case folder.  There is an addition OTHER folder for things that do not fit into the alphanumeric category
 #
 # groupby=
 

@@ -24,7 +24,7 @@ from Push import Push
 from MessageBox import MessageBox
 
 TITLE = 'PyTivo Video Manager'
-VERSION = '2.2'
+VERSION = '2.2b'
 
 print asctime(), TITLE + " version " + VERSION + " module initializing"
 
@@ -103,7 +103,7 @@ class Vidmgr(Application):
 		# tivox.name - the user friendly name and
 		# tivox.tsn - the TSN
 		# these fields all go into a section named [tivos]		
-		self.loadTivos(self.cp)
+		self.loadTivos(self.cp, self.opts['sorttivosbyname'])
 		if len(self.tivos) == 0:
 			raise ConfigError("No Tivos found - exiting")
 
@@ -320,7 +320,7 @@ class Vidmgr(Application):
 		return False
 		
 	# load up tivo information from the config file
-	def loadTivos(self, cfg):
+	def loadTivos(self, cfg, sortflag):
 		def cmptivo (left, right):
 			return cmp(left['name'], right['name'])
 		
@@ -340,7 +340,10 @@ class Vidmgr(Application):
 				else:
 					break
 				
-		self.tivos = sorted(tlist, cmp=cmptivo)
+		if sortflag:
+			self.tivos = sorted(tlist, cmp=cmptivo)
+		else:
+			self.tivos = tlist[:]
 
 	# load up pytivo and shares information from config and from pytivo config(s)
 	def loadShares(self, cfg):

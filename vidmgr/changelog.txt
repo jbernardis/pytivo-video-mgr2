@@ -59,3 +59,12 @@ Version 2.1c - 8/24/2012
 
 Version 2.2 - 12/3/2012
 - added the ability to have artwork/thumbnail images for virtual shares (and physical shares) and for the subtending directories
+
+Version 2.2a - 4/10/2013
+- added a new config option, sorttivosbyname.  If set to true (the default) tivos will be listed in
+	alphabetical order by their name.  If false, they will be in the numeric order in which they are
+	listed in the ini file
+	
+Version 2.2b - 4/24/2013
+- added a new grouping item - alpha - to break virtual shares into folders based on the first character of their title item.  Also 
+  allowed  grouping with a list that had been previously disallowed.

@@ -73,7 +73,6 @@ class DetailDisplayManager:
 				self.vwDetailThumb.clear_resource()
 		elif otype in [TYPE_NODE]:
 			mapkey = os.path.join(AppPath, artworkDir, item.getPath()+".jpg")
-			print "Trying to find NODE image file (%s)" % mapkey
 			if mapkey in self.imagemap:
 				thumb = self.imagemap[mapkey]
 			else:
@@ -88,7 +87,6 @@ class DetailDisplayManager:
 		
 		elif otype in [TYPE_VIDSHARE, TYPE_DVDSHARE]:
 			mapkey = os.path.join(item.getRoot(), "share.jpg")
-			print "Trying to find SHARE image file (%s)" % mapkey
 			if mapkey in self.imagemap:
 				thumb = self.imagemap[mapkey]
 			else:
