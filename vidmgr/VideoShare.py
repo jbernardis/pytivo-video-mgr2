@@ -7,9 +7,34 @@ from VideoFile import VideoFile
 from VideoDir import VideoDir
 from Config import TYPE_VIDSHARE
 import Config
-import os
+import os.path
 import metadata
 from FileID import fileId
+
+def myWalk(directory):
+	dirlist = []
+	filelist = []
+	
+	if os.path.islink(directory):
+		ldir = os.path.realpath(directory)
+		print "Processing symlink: %s => %s" % (directory, ldir)
+	else:
+		ldir = directory
+
+	l = os.listdir(ldir)
+	for d in l:
+		fd = os.path.join(ldir, d)
+		if os.path.isdir(fd):
+			dirlist.append(d)
+		else:
+			filelist.append(d)
+
+	result = [[directory, dirlist, filelist],]
+	for d in dirlist:
+		result.extend(myWalk(os.path.join(directory, d)))
+
+	return result
+
 
 class VideoShare:
 	def __init__(self, opts, name, root, vidlist, harvesters):
@@ -20,7 +45,7 @@ class VideoShare:
 		self.root = root
 		self.videoDir = VideoDir(opts, "", "", root, name)
 		
-		tree = os.walk(root)
+		tree = myWalk(root)
 		
 		sharedirs = {"": self.videoDir}
 		shareopts = {"": self.opts}
