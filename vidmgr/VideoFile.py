@@ -127,10 +127,12 @@ class VideoFile:
 		return os.path.join(self.vRef[0].getPath(), self.vRef[0].getName(), self.getFileName())
 	
 	def getShare(self):
-		if len(self.vRef) == 0:
-			return None
-		
-		return self.vRef[0].getShare();
+		for v in self.vRef:
+			s = v.getShare()
+			if s is not None:
+				return s
+			
+		return None
 	
 	def getShareList(self):
 		l = []
@@ -151,7 +153,14 @@ class VideoFile:
 		self.formatDisplayText(self.opts['dispopt'])
 		
 	def setMetaItem(self, key, value):
-		self.meta[key] = value
+		if key.startswith('v'):
+			if key in self.meta:
+				if value not in self.meta[key]:
+					self.meta[key].append(value)
+			else:
+				self.meta[key] = [value]
+		else:
+			self.meta[key] = value
 		
 	def formatDisplayText(self, fmt):
 		result = ""

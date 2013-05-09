@@ -35,6 +35,8 @@ metaXlate = { 'title': 'Title',
 			'vWriter': 'Writer',
 			'__fileName': 'File Name',
 			'__filePath': 'File Path',
+			'vPushTivo': 'Tivo(s) pushed to',
+			'pushDate': 'Date last pushed',
 			'alpha' : 'Alphabetical',
 			}
 

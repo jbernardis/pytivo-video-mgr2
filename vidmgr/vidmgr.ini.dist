@@ -182,10 +182,12 @@ sortroot=false
 usefileid=true
 
 #
-# the following option, when set to true, causes the time of a push operation to be saved in the meta file.  Default is false
+# the following option, when set to true, causes the time of a push operation and the name of the tivo that was pushed to
+# to be saved in the meta file.  Default is false.  This used to be savepushdate.  For backward compatibility, savepushdate
+# is a synonym for savepushdata
 #
 
-savepushdate=false
+savepushdata=false
 
 #
 # the following option, when set to false, causes the list of tivos in the push menu to be in the numeric order that

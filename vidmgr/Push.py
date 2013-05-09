@@ -26,7 +26,7 @@ class Push:
 
 		self.ip, self.port, self.sep = self.selectPyTivo(app, self.container)
 		if self.ip == None:
-			raise ConfigError("Share Configuration Error")
+			raise ConfigError("Share Configuration Error - unable to find share {%s}" % self.container)
 
 		self.menu = []
 		self.tsns = []
@@ -81,8 +81,9 @@ class Push:
 						[[[], MYKEY_PUSHCOMPLETE]])
 			else:
 				if html.lower().count('queue') != 0:
-					if self.opts['savepushdate']:
+					if self.opts['savepushdata']:
 						self.vf.setMetaItem("pushDate", strftime("%Y-%m-%dT%H:%M:%SZ", gmtime()))
+						self.vf.setMetaItem("vPushTivo", tivoname)
 						meta = self.vf.getMeta()
 						try:
 							fn = self.vf.getMetaFileName()

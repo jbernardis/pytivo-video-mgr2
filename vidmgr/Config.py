@@ -96,7 +96,7 @@ class Config:
 				'group' : None,
 				'usefileid' : True,
 				'sorttivosbyname' : True,
-				'savepushdate' : False
+				'savepushdata' : False
 				}
 	
 		if self.cfg.has_section('vidmgr'):
@@ -130,9 +130,9 @@ class Config:
 					if lval == "false":
 						opts['sorttivosbyname'] = False
 				
-				elif opt == 'savepushdate':
+				elif opt == 'savepushdata' or opt == 'savepushdate':
 					if lval == "true":
-						opts['savepushdate'] = True
+						opts['savepushdata'] = True
 				
 				elif opt == 'infolabelpercent':
 					n = int(value)
