@@ -1,0 +1,26 @@
+<project default="install" name="vidmgr2">
+	<property name="stagedir" location="//Netgear/Stage" />
+	<property name="gitdir" location="c:\users\jeff/pytivo-video-mgr2" />
+	<target name="install" description="copy resources and executables to destination directory">
+		<copy todir="${stagedir}/vidmgr">
+			<fileset dir="${basedir}/src" includes="*.py" />
+			<fileset dir="${basedir}/src" includes="*.png" />
+			<fileset dir="${basedir}/src" includes="*.dist" />
+			<fileset dir="${basedir}/src" includes="*.txt" />
+			<fileset dir="${basedir}" includes="Makefile" />
+		</copy>
+		<copy todir="${stagedir}/vidmgr/skins">
+			<fileset dir="${basedir}/src/skins" includes="*.png" />
+		</copy>
+		<copy todir="${gitdir}/vidmgr">
+			<fileset dir="${basedir}/src" includes="*.py" />
+			<fileset dir="${basedir}/src" includes="*.png" />
+			<fileset dir="${basedir}/src" includes="*.dist" />
+			<fileset dir="${basedir}/src" includes="*.txt" />
+		</copy>
+		<copy todir="${gitdir}/vidmgr/skins">
+			<fileset dir="${basedir}/src/skins" includes="*.png" />
+		</copy>
+	</target>
+</project>
+
