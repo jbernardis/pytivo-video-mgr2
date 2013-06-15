@@ -120,11 +120,12 @@ class VideoFile:
 		else:
 			return fn1		
 	
-	def getRelativePath(self):
-		if len(self.vRef) == 0:
-			return None
-
-		return os.path.join(self.vRef[0].getPath(), self.vRef[0].getName(), self.getFileName())
+	def getRelativePath(self, share):
+		for v in self.vRef:
+			if v.getShare() == share:
+				return os.path.join(v.getPath(), v.getName(), self.getFileName())
+			
+		return None
 	
 	def getShare(self):
 		for v in self.vRef:

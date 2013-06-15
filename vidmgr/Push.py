@@ -61,9 +61,9 @@ class Push:
 			tsn = self.tsns[tivo]
 		
 			if self.sep is None or self.sep == os.path.sep:
-				relfile = os.path.sep + self.vf.getRelativePath()
+				relfile = os.path.sep + self.vf.getRelativePath(self.container)
 			else:
-				relfile = self.sep + self.vf.getRelativePath().translate(maketrans(os.path.sep, self.sep))
+				relfile = self.sep + self.vf.getRelativePath(self.container).translate(maketrans(os.path.sep, self.sep))
 			
 			params = urllib.urlencode({'Command': 'Push', 'Container': self.container,
 						'File': relfile,

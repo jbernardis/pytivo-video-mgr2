@@ -74,3 +74,6 @@ Version 2.2b - 4/24/2013
  share sorts into the first position
  - added the name(s) of tivo's pushed to when adding push data to the meta file.  Changed setting savepushdate to savepushdata
  to encompass this additional functionality, but retained the name savepushdate for backward compatability.  The names are synonyms.
+ 
+ Version 2.2d - 6/15/2013
+ - fixed a bug related to the 2.2c fix when pushing a video
