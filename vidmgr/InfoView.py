@@ -110,9 +110,9 @@ class InfoView(View):
 			lbl = label
 	
 		if type(data) is list:
-			dstring = ', '.join(data)
+			dstring = ', '.join([str(d) for d in data])
 		else:
-			dstring = data
+			dstring = str(data)
 			
 		if label in self.opts['metaspacebefore'] and not self.lastLineBlank:
 			self.labelContent.append("")
@@ -189,12 +189,20 @@ class InfoView(View):
 		
 		for m in self.opts['metafirst']:
 			if m in meta:
-				self.addline(m, meta[m])
+				try:
+					self.addline(m, meta[m])
+				except:
+					print "Exception occurred trying to add metadata item (%s)" % m
+					print "value: ", str(meta[m]), " Type: ", type(meta[m])
 
 		skeys = sorted(meta.keys(), cmpTitle)
 		for m in skeys:
 			if m not in self.opts['metafirst'] and m not in self.opts['metaignore']:
-				self.addline(m, meta[m])
+				try:
+					self.addline(m, meta[m])
+				except:
+					print "Exception occurred trying to add metadata item (%s)" % m
+					print "value: ", str(meta[m]), " Type: ", type(meta[m])
 		
 	def paint(self):
 		if self.displayOffset == 0:

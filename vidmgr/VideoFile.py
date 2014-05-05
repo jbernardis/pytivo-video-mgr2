@@ -194,13 +194,16 @@ class VideoFile:
 	def formatSortText(self, fmt):
 		result = ""
 		terms = 0
+			
 		for f in fmt:
 			if result != "":
 				result += SORTSEP
 			if f in self.meta:
 				data = self.meta[f]
-				if type(data) is list:
-					result += ','.join(data)
+				if f == 'titleNumber':
+					result += "%02d" % data
+				elif type(data) is list:
+					result += ','.join([str(x) for x in data])
 				else:
 					if f in [ 'title', 'episodeTitle' ] and self.opts['ignorearticle']:
 						data = stripArticle(self.meta[f])

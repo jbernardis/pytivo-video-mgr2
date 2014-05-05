@@ -77,3 +77,8 @@ Version 2.2b - 4/24/2013
  
  Version 2.2d - 6/15/2013
  - fixed a bug related to the 2.2c fix when pushing a video
+ 
+ Version 2.2e - 5/4/2014
+ - fixed improper handling if integer metadata - specifically the episode number of a DVD title
+ - fixed DVD Share sorting - it now properly sorts on the sort specification instead of the display spec
+ - fixed improper parsing of Virtual Shares - was not recognizing 'display' settings

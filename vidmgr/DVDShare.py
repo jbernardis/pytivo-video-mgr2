@@ -52,6 +52,7 @@ class DVDShare:
 						meta, t = self.loadDvdMeta(path, lopts, fn, title, True)
 						meta['title'] = title
 						meta['titleNumber'] = tn
+						print "adding titleNumber %s to metadata for title %s file %s" % (str(tn), title, fn)
 						vf.setMeta(meta)
 						
 						vdir.addVideo(vf)

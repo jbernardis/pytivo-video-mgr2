@@ -80,8 +80,8 @@ class DVDDir:
 
 	def sort(self):
 		def cmpNodes(a, b):
-			ta = a.formatSortText(self.opts['dispopt'])
-			tb = b.formatSortText(self.opts['dispopt'])
+			ta = a.formatSortText(self.opts['sortopt'])
+			tb = b.formatSortText(self.opts['sortopt'])
 			if (self.opts['sortup']):
 				return cmpList(ta, tb)
 			else:
