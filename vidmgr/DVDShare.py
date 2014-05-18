@@ -80,7 +80,7 @@ class DVDShare:
 						meta = metadata.from_text(
 							os.path.join(path, dn, "folder"),
 							lopts['metamergefiles'],
-							lopts['metamergelines'])
+							lopts['metamergelines'], lopts['metamergeparent'])
 
 						d = VideoDir(lopts, dn, rpath, path, self.name)
 						
@@ -100,7 +100,7 @@ class DVDShare:
 
 	def loadDvdMeta(self, metadir, opts, basefn, deftitle, singleDVDtitle):
 		metapath = os.path.join(metadir, basefn)
-		meta = metadata.from_text(metapath, opts['metamergefiles'], opts['metamergelines'])
+		meta = metadata.from_text(metapath, opts['metamergefiles'], opts['metamergelines'], lopts['metamergeparent'])
 		if (not 'title' in meta) or (meta['title'] == basefn):
 			meta['title'] = deftitle
 

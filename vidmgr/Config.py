@@ -80,6 +80,7 @@ class Config:
 				'metaspaceafter' : [],
 				'metamergefiles' : True,
 				'metamergelines' : False,
+				'metamergeparent' : False,
 				'infolabelpercent' : 30,
 				'inforightmargin' : 20,
 				'descsize' : 20,
@@ -125,6 +126,10 @@ class Config:
 				elif opt == 'metamergelines':
 					if lval == "true":
 						opts['metamergelines'] = True
+				
+				elif opt == 'metamergeparent':
+					if lval == "true":
+						opts['metamergeparent'] = True
 				
 				elif opt == 'sorttivosbyname':
 					if lval == "false":

@@ -82,3 +82,6 @@ Version 2.2b - 4/24/2013
  - fixed improper handling if integer metadata - specifically the episode number of a DVD title
  - fixed DVD Share sorting - it now properly sorts on the sort specification instead of the display spec
  - fixed improper parsing of Virtual Shares - was not recognizing 'display' settings
+ 
+ Version 2.2f - 5/18/2013
+ - added a new ini file option - metamergeparent (default false) to control whether or not to look upward in the path for parent metadata files.

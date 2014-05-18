@@ -63,7 +63,8 @@ class VideoShare:
 				if name.startswith("."): continue
 				meta = metadata.from_text(os.path.join(path, name, "folder"),
 							lopts['metamergefiles'],
-							lopts['metamergelines'])
+							lopts['metamergelines'],
+							lopts['metamergeparent'])
 				d = VideoDir(lopts, name, rpath, path, self.name)
 				d.setMeta(meta)
 				vl.addDir(d)
@@ -85,7 +86,8 @@ class VideoShare:
 
 						meta = metadata.from_text(os.path.join(path, name),
 												lopts['metamergefiles'],
-												lopts['metamergelines'])
+												lopts['metamergelines'],
+												lopts['metamergeparent'])
 						if not 'title' in meta:
 							meta = metadata.basic(os.path.join(path, name))
 						vf.setMeta(meta)

@@ -74,9 +74,17 @@ inforightmargin=20
 # metadata tags that are already lists (vActor, etc) are always merged regardless of the value of
 # this option.
 #
+# By default, vidmgr only searches in the directory of the video file and the subtending .meta
+# directory for metadata files.  If metamergeparent is True (and metamergefiles is true), vidmgr
+# will traverse upward through the directory tree looking for default.txt files and it will add
+# their data to the current video's metadata.  Files are added starting with the topmost, so the
+# root file is added and then the first subdirectory, working down to the current directory, and
+# the the local metadata files are added as per normal
+#
 
 metamergefiles=True
 metamergelines=False
+metamergeparent=False
 
 #
 # specify the point size of the font used to display the descriptive text of a video on the main screen

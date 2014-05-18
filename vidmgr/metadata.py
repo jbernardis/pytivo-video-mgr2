@@ -55,16 +55,36 @@ def _tag_value(element, tag):
 		name = item[0].firstChild.data
 		return name[0] + value[0]
 
-def from_text(full_path, mergefiles=True, mergelines=False):
+def uniq(ilist) :
+	olist = []
+	for li in ilist:
+		if li not in olist:
+			olist.append(li)
+	return olist
+
+def from_text(full_path, mergefiles=True, mergelines=False, mergeparent=False):
 	metadata = {}
 	path, name = os.path.split(full_path)
 	title, ext = os.path.splitext(name)
 
-	for metafile in [os.path.join(path, title) + '.properties',
+	filelist = []
+	
+	if mergefiles and mergeparent:
+		sl = []
+		dirs = path.split(os.path.sep)
+		for i in range(len(dirs))[1:]:
+			p = os.path.sep.join(dirs[:-i]+ ["default.txt"])
+			if os.path.exists(p):
+				sl = [p] + sl  #add to front of list
+		filelist.extend(sl)
+
+	filelist.extend([os.path.join(path, title) + '.properties',
 					 os.path.join(path, '.meta', 'default.txt'),
 					 os.path.join(path, 'default.txt'),
 					 os.path.join(path, '.meta', name) + '.txt',
-					 full_path + '.txt']:
+					 full_path + '.txt'])
+	
+	for metafile in filelist:
 		if os.path.exists(metafile):
 			if not mergefiles:
 				metadata = {}
@@ -105,6 +125,11 @@ def from_text(full_path, mergefiles=True, mergelines=False):
 		x = metadata.get(rating, '').upper()
 		if x in ratings:
 			metadata[rating] = ratings[x]
+			
+	for k in metadata.keys():
+		if k.startswith('v'):
+			ulist = uniq(metadata[k])
+			metadata[k] = ulist
 
 	return metadata
 
