@@ -2,6 +2,8 @@
 
 import os
 from datetime import datetime
+from xml.dom import minidom
+from xml.parsers import expat
 
 # Something to strip
 TV_RATINGS = {'TV-Y7': 'x1', 'TV-Y': 'x2', 'TV-G': 'x3', 'TV-PG': 'x4', 
@@ -48,13 +50,6 @@ def _vtag_data(element, tag):
 	elements = element.getElementsByTagName('element')
 	return [x.firstChild.data for x in elements if x.firstChild]
 
-def _tag_value(element, tag):
-	item = element.getElementsByTagName(tag)
-	if item:
-		value = item[0].attributes['value'].value
-		name = item[0].firstChild.data
-		return name[0] + value[0]
-
 def uniq(ilist) :
 	olist = []
 	for li in ilist:
@@ -63,7 +58,9 @@ def uniq(ilist) :
 	return olist
 
 def from_text(full_path, mergefiles=True, mergelines=False, mergeparent=False):
-	metadata = {}
+	
+	metadata = from_nfo(full_path)
+	
 	path, name = os.path.split(full_path)
 	title, ext = os.path.splitext(name)
 
@@ -132,6 +129,217 @@ def from_text(full_path, mergefiles=True, mergelines=False, mergeparent=False):
 			metadata[k] = ulist
 
 	return metadata
+
+def tag_data(element, tag):
+    for name in tag.split('/'):
+        found = False
+        for new_element in element.childNodes:
+            if new_element.nodeName == name:
+                found = True
+                element = new_element
+                break
+        if not found:
+            return ''
+    if not element.firstChild:
+        return ''
+    return element.firstChild.data
+
+def _vtag_data_alternate(element, tag):
+    elements = [element]
+    for name in tag.split('/'):
+        new_elements = []
+        for elmt in elements:
+            new_elements += elmt.getElementsByTagName(name)
+        elements = new_elements
+    return [x.firstChild.data for x in elements if x.firstChild]
+
+
+def _nfo_vitems(source, metadata):
+
+    vItems = {'vGenre': 'genre',
+              'vWriter': 'credits',
+              'vDirector': 'director',
+              'vActor': 'actor/name'}
+
+    for key in vItems:
+        data = _vtag_data_alternate(source, vItems[key])
+        if data:
+            metadata.setdefault(key, [])
+            for dat in data:
+                if not dat in metadata[key]:
+                    metadata[key].append(dat)
+
+    if 'vGenre' in metadata:
+        metadata['vSeriesGenre'] = metadata['vProgramGenre'] = metadata['vGenre']
+
+    return metadata
+
+def _parse_nfo(nfo_path, nfo_data=None):
+    # nfo files can contain XML or a URL to seed the XBMC metadata scrapers
+    # It's also possible to have both (a URL after the XML metadata)
+    # pyTivo only parses the XML metadata, but we'll try to stip the URL
+    # from mixed XML/URL files.  Returns `None` when XML can't be parsed.
+    if nfo_data is None:
+        nfo_data = [line.strip() for line in file(nfo_path, 'rU')]
+    xmldoc = None
+    try:
+        xmldoc = minidom.parseString(os.linesep.join(nfo_data))
+    except expat.ExpatError, err:
+        if expat.ErrorString(err.code) == expat.errors.XML_ERROR_INVALID_TOKEN:
+            # might be a URL outside the xml
+            while len(nfo_data) > err.lineno:
+                if len(nfo_data[-1]) == 0:
+                    nfo_data.pop()
+                else:
+                    break
+            if len(nfo_data) == err.lineno:
+                # last non-blank line contains the error
+                nfo_data.pop()
+                return _parse_nfo(nfo_path, nfo_data)
+    return xmldoc
+
+def _from_tvshow_nfo(tvshow_nfo_path):
+    items = {'description': 'plot',
+             'title': 'title',
+             'seriesTitle': 'showtitle',
+             'starRating': 'rating',
+             'tvRating': 'mpaa'}
+
+    metadata = {}
+
+    xmldoc = _parse_nfo(tvshow_nfo_path)
+    if not xmldoc:
+        return metadata
+
+    tvshow = xmldoc.getElementsByTagName('tvshow')
+    if tvshow:
+        tvshow = tvshow[0]
+    else:
+        return metadata
+
+    for item in items:
+        data = tag_data(tvshow, items[item])
+        if data:
+            metadata[item] = data
+
+    metadata = _nfo_vitems(tvshow, metadata)
+
+    return metadata
+
+def _from_episode_nfo(nfo_path, xmldoc):
+    metadata = {}
+
+    items = {'description': 'plot',
+             'episodeTitle': 'title',
+             'seriesTitle': 'showtitle',
+             'originalAirDate': 'aired',
+             'starRating': 'rating',
+             'tvRating': 'mpaa'}
+
+    # find tvshow.nfo
+    path = nfo_path
+    while True:
+        basepath = os.path.dirname(path)
+        if path == basepath:
+            break
+        path = basepath
+        tv_nfo = os.path.join(path, 'tvshow.nfo')
+        if os.path.exists(tv_nfo):
+            metadata.update(_from_tvshow_nfo(tv_nfo))
+            break
+
+    episode = xmldoc.getElementsByTagName('episodedetails')
+    if episode:
+        episode = episode[0]
+    else:
+        return metadata
+
+    metadata['isEpisode'] = 'true'
+    for item in items:
+        data = tag_data(episode, items[item])
+        if data:
+            metadata[item] = data
+
+    season = tag_data(episode, 'displayseason')
+    if not season or season == "-1":
+        season = tag_data(episode, 'season')
+    if not season:
+        season = 1
+
+    ep_num = tag_data(episode, 'displayepisode')
+    if not ep_num or ep_num == "-1":
+        ep_num = tag_data(episode, 'episode')
+    if ep_num and ep_num != "-1":
+        metadata['episodeNumber'] = "%d%02d" % (int(season), int(ep_num))
+
+    if 'originalAirDate' in metadata:
+        metadata['originalAirDate'] += 'T00:00:00Z'
+
+    metadata = _nfo_vitems(episode, metadata)
+
+    return metadata
+
+def _from_movie_nfo(xmldoc):
+    metadata = {}
+
+    movie = xmldoc.getElementsByTagName('movie')
+    if movie:
+        movie = movie[0]
+    else:
+        return metadata
+
+    items = {'description': 'plot',
+             'title': 'title',
+             'movieYear': 'year',
+             'starRating': 'rating',
+             'mpaaRating': 'mpaa'}
+
+    metadata['isEpisode'] = 'false'
+
+    for item in items:
+        data = tag_data(movie, items[item])
+        if data:
+            metadata[item] = data
+
+    metadata['movieYear'] = "%04d" % int(metadata.get('movieYear', 0))
+
+    metadata = _nfo_vitems(movie, metadata)
+    return metadata
+
+def from_nfo(full_path):
+    metadata = {}
+
+    nfo_path = "%s.nfo" % os.path.splitext(full_path)[0]
+    if not os.path.exists(nfo_path):
+        return metadata
+
+    xmldoc = _parse_nfo(nfo_path)
+    if not xmldoc:
+        return metadata
+
+    if xmldoc.getElementsByTagName('episodedetails'):
+        # it's an episode
+        metadata.update(_from_episode_nfo(nfo_path, xmldoc))
+    elif xmldoc.getElementsByTagName('movie'):
+        # it's a movie
+        metadata.update(_from_movie_nfo(xmldoc))
+
+    # common nfo cleanup
+    if 'starRating' in metadata:
+        # .NFO 0-10 -> TiVo 1-7
+        rating = int(float(metadata['starRating']) * 6 / 10 + 1.5)
+        metadata['starRating'] = str(rating)
+
+    for key, mapping in [('mpaaRating', MPAA_RATINGS),
+                         ('tvRating', TV_RATINGS)]:
+        if key in metadata:
+            rating = mapping.get(metadata[key], None)
+            if rating:
+                metadata[key] = str(rating)
+            else:
+                del metadata[key]
+
+    return metadata
 
 def basic(full_path):
 	base_path, name = os.path.split(full_path)
