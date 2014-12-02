@@ -3,10 +3,10 @@ Created on Jun 14, 2011
 
 @author: jbernard
 '''
+from PIL import Image as img
 import cPickle as pickle
 import os
 import thread
-import Image as img
 from cStringIO import StringIO
 
 CACHEFILE = 'thumbs.cache'

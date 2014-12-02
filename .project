@@ -3,6 +3,7 @@
 	<name>video-mgr2</name>
 	<comment></comment>
 	<projects>
+		<project>pyhme</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
